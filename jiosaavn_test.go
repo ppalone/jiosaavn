@@ -109,4 +109,13 @@ func TestSearchSongs(t *testing.T) {
 
 		assert.Equal(t, resNext.Songs, resPage.Songs)
 	})
+
+	t.Run("with no search results", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		res, err := c.SearchSongs(context.Background(), "qazwsxecrfvtgbyhnujmik")
+		assert.NoError(t, err)
+		assert.Equal(t, 1, res.Page)
+		assert.Equal(t, 0, res.Size)
+		assert.False(t, res.HasNext)
+	})
 }

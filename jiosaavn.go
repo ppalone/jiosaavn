@@ -38,6 +38,16 @@ func (c *Client) SearchSongs(ctx context.Context, q string, opts ...SearchOption
 	return c.searchSongs(ctx, q, searchOpts)
 }
 
+// SearchArtists
+func (c *Client) SearchArtists(ctx context.Context, q string, opts ...SearchOption) (SearchArtistsResults, error) {
+	searchOpts := defaultSearchOpts()
+	for _, opt := range opts {
+		opt(searchOpts)
+	}
+
+	return c.searchArtists(ctx, q, searchOpts)
+}
+
 func (c *Client) searchSongs(ctx context.Context, q string, opts *searchOptions) (SearchSongsResults, error) {
 	opts.query = strings.TrimSpace(q)
 
@@ -62,6 +72,35 @@ func (c *Client) searchSongs(ctx context.Context, q string, opts *searchOptions)
 	err = json.NewDecoder(resp.Body).Decode(apiResp)
 	if err != nil {
 		return SearchSongsResults{}, err
+	}
+
+	return apiResp.toResults(c, opts)
+}
+
+func (c *Client) searchArtists(ctx context.Context, q string, opts *searchOptions) (SearchArtistsResults, error) {
+	opts.query = strings.TrimSpace(q)
+
+	params, err := buildSearchParams(opts)
+	if err != nil {
+		return SearchArtistsResults{}, err
+	}
+	params[callEndpoint] = searchArtistsEndpoint
+
+	req, err := makeRequest(ctx, params)
+	if err != nil {
+		return SearchArtistsResults{}, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return SearchArtistsResults{}, err
+	}
+	defer resp.Body.Close()
+
+	apiResp := new(searchArtistsAPIResponse)
+	err = json.NewDecoder(resp.Body).Decode(apiResp)
+	if err != nil {
+		return SearchArtistsResults{}, err
 	}
 
 	return apiResp.toResults(c, opts)

@@ -120,3 +120,67 @@ func TestSearchSongs(t *testing.T) {
 		assert.False(t, res.HasNext)
 	})
 }
+
+func TestSearchArtists(t *testing.T) {
+	t.Run("with no search options", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		res, err := c.SearchArtists(context.Background(), "Alan Walker")
+		assert.NoError(t, err)
+		assert.Equal(t, 1, res.Page)
+		assert.True(t, res.HasNext)
+	})
+
+	t.Run("with limit search options", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		limit := 30
+		res, err := c.SearchArtists(context.Background(), "Alan Walker", jiosaavn.WithLimit(limit))
+		assert.NoError(t, err)
+		assert.Equal(t, 1, res.Page)
+		assert.Equal(t, limit, res.Size)
+		assert.Equal(t, limit, len(res.Artists))
+		assert.True(t, res.HasNext)
+	})
+
+	t.Run("with page search option", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		page := 3
+		res, err := c.SearchArtists(context.Background(), "Alan Walker", jiosaavn.WithPage(page))
+		assert.NoError(t, err)
+		assert.Equal(t, page, res.Page)
+		assert.NotEmpty(t, res.Artists)
+	})
+
+	t.Run("with next results", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		res, err := c.SearchArtists(context.Background(), "Alan Walker")
+		assert.NoError(t, err)
+		assert.Equal(t, 1, res.Page)
+		assert.NotEmpty(t, res.Artists)
+		assert.True(t, res.HasNext)
+
+		resNext, err := res.Next(context.Background())
+		assert.NoError(t, err)
+		assert.Equal(t, 2, resNext.Page)
+		assert.NotEmpty(t, resNext.Artists)
+
+		assert.NotEqual(t, res.Artists, resNext.Artists)
+	})
+
+	t.Run("with page and next results", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		q := "Alan Walker"
+		res, err := c.SearchArtists(context.Background(), q)
+		assert.NoError(t, err)
+		assert.True(t, res.HasNext)
+
+		resNext, err := res.Next(context.Background())
+		assert.NoError(t, err)
+		assert.Equal(t, 2, resNext.Page)
+
+		resPage, err := c.SearchArtists(context.Background(), q, jiosaavn.WithPage(2))
+		assert.NoError(t, err)
+		assert.Equal(t, 2, resPage.Page)
+
+		assert.ElementsMatch(t, resPage.Artists, resNext.Artists)
+	})
+}

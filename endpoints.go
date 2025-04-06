@@ -2,5 +2,6 @@ package jiosaavn
 
 // endpoints
 const (
-	searchSongsEndpoint = "search.getResults"
+	searchSongsEndpoint   = "search.getResults"
+	searchArtistsEndpoint = "search.getArtistResults"
 )

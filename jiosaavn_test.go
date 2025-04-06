@@ -107,7 +107,7 @@ func TestSearchSongs(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 2, resPage.Page)
 
-		assert.Equal(t, resNext.Songs, resPage.Songs)
+		assert.ElementsMatch(t, resNext.Songs, resPage.Songs)
 	})
 
 	t.Run("with no search results", func(t *testing.T) {

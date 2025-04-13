@@ -236,3 +236,28 @@ func TestSearchPlaylists(t *testing.T) {
 		assert.ElementsMatch(t, resNext.Playlists, resPage.Playlists)
 	})
 }
+
+func TestGetSongById(t *testing.T) {
+	t.Run("with empty id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		_, err := c.GetSongById(context.Background(), "")
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "song id cannot be empty")
+	})
+
+	t.Run("with invalid id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		_, err := c.GetSongById(context.Background(), "xxxxxxxx")
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "invalid song id")
+	})
+
+	t.Run("with valid id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		id := "1xqHQw3J" // Faded by Alan Walker
+		song, err := c.GetSongById(context.Background(), id)
+		assert.NoError(t, err)
+		assert.NotNil(t, song)
+		assert.Equal(t, "Faded", song.Title)
+	})
+}

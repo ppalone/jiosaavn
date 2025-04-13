@@ -3,6 +3,7 @@ package jiosaavn
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -56,6 +57,37 @@ func (c *Client) SearchPlaylists(ctx context.Context, q string, opts ...SearchOp
 	}
 
 	return c.searchPlaylists(ctx, q, searchOpts)
+}
+
+// GetSongById
+func (c *Client) GetSongById(ctx context.Context, id string) (Song, error) {
+	id = strings.TrimSpace(id)
+	if len(id) == 0 {
+		return Song{}, fmt.Errorf("song id cannot be empty")
+	}
+
+	params := make(map[string]string)
+	params["pids"] = id
+	params[callEndpoint] = getSongById
+
+	req, err := makeRequest(ctx, params)
+	if err != nil {
+		return Song{}, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return Song{}, err
+	}
+	defer resp.Body.Close()
+
+	apiResponse := new(getSongAPIResponse)
+	err = json.NewDecoder(resp.Body).Decode(apiResponse)
+	if err != nil {
+		return Song{}, err
+	}
+
+	return apiResponse.toSong()
 }
 
 func (c *Client) searchSongs(ctx context.Context, q string, opts *searchOptions) (SearchSongsResults, error) {

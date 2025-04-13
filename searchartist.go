@@ -21,35 +21,40 @@ type SearchArtistsResults struct {
 
 // Search artists API response.
 type searchArtistsAPIResponse struct {
-	Total   int `json:"total"`
-	Start   int `json:"start"`
-	Results []struct {
-		Name           string `json:"name"`
-		ID             string `json:"id"`
-		Ctr            int    `json:"ctr"`
-		Entity         int    `json:"entity"`
-		Image          string `json:"image"`
-		Role           string `json:"role"`
-		PermaURL       string `json:"perma_url"`
-		Type           string `json:"type"`
-		MiniObj        bool   `json:"mini_obj"`
-		IsRadioPresent bool   `json:"isRadioPresent"`
-		IsFollowed     bool   `json:"is_followed"`
-	} `json:"results"`
+	Total   int                 `json:"total"`
+	Start   int                 `json:"start"`
+	Results []artistAPIResponse `json:"results"`
+}
+
+// Artist API Response
+type artistAPIResponse struct {
+	Name           string `json:"name"`
+	ID             string `json:"id"`
+	Ctr            int    `json:"ctr"`
+	Entity         int    `json:"entity"`
+	Image          string `json:"image"`
+	Role           string `json:"role"`
+	PermaURL       string `json:"perma_url"`
+	Type           string `json:"type"`
+	MiniObj        bool   `json:"mini_obj"`
+	IsRadioPresent bool   `json:"isRadioPresent"`
+	IsFollowed     bool   `json:"is_followed"`
+}
+
+func (res *artistAPIResponse) toArtist() Artist {
+	return Artist{
+		ID:           res.ID,
+		Name:         html.UnescapeString(res.Name),
+		Image:        res.Image,
+		PermanentURL: res.PermaURL,
+	}
 }
 
 func (resp *searchArtistsAPIResponse) toResults(c *Client, opts *searchOptions) (SearchArtistsResults, error) {
 	artists := make([]Artist, 0)
 
 	for _, result := range resp.Results {
-		artist := Artist{
-			ID:           result.ID,
-			Name:         html.EscapeString(result.Name),
-			Image:        result.Image,
-			PermanentURL: result.PermaURL,
-		}
-
-		artists = append(artists, artist)
+		artists = append(artists, result.toArtist())
 	}
 
 	hasNext := ((resp.Start - 1) + len(resp.Results)) < resp.Total

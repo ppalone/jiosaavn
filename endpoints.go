@@ -8,5 +8,6 @@ const (
 	searchPlaylistsEndpoint = "search.getPlaylistResults"
 
 	// get by id
-	getSongById = "song.getDetails"
+	getSongById     = "song.getDetails"
+	getPlaylistById = "playlist.getDetails"
 )

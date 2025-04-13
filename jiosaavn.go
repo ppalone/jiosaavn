@@ -90,6 +90,43 @@ func (c *Client) GetSongById(ctx context.Context, id string) (Song, error) {
 	return apiResponse.toSong()
 }
 
+// GetPlaylistById
+func (c *Client) GetPlaylistById(ctx context.Context, id string) (PlaylistInfo, error) {
+	id = strings.TrimSpace(id)
+	if len(id) == 0 {
+		return PlaylistInfo{}, fmt.Errorf("playlist id cannot be empty")
+	}
+
+	_, err := strconv.Atoi(id)
+	if err != nil {
+		return PlaylistInfo{}, fmt.Errorf("playlist id must be a number")
+	}
+
+	// TODO: add p(page) and n(limit) pagination
+	params := make(map[string]string)
+	params["listid"] = id
+	params[callEndpoint] = getPlaylistById
+
+	req, err := makeRequest(ctx, params)
+	if err != nil {
+		return PlaylistInfo{}, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return PlaylistInfo{}, err
+	}
+	defer resp.Body.Close()
+
+	apiResponse := new(getPlaylistAPIResponse)
+	err = json.NewDecoder(resp.Body).Decode(apiResponse)
+	if err != nil {
+		return PlaylistInfo{}, err
+	}
+
+	return apiResponse.toPlaylistInfo()
+}
+
 func (c *Client) searchSongs(ctx context.Context, q string, opts *searchOptions) (SearchSongsResults, error) {
 	opts.query = strings.TrimSpace(q)
 

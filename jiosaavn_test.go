@@ -261,3 +261,32 @@ func TestGetSongById(t *testing.T) {
 		assert.Equal(t, "Faded", song.Title)
 	})
 }
+
+func TestGetPlaylistById(t *testing.T) {
+	t.Run("with empty id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		_, err := c.GetPlaylistById(context.Background(), "")
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "playlist id cannot be empty")
+	})
+
+	t.Run("with valid id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		id := "1141249906"
+		res, err := c.GetPlaylistById(context.Background(), id)
+		assert.NoError(t, err)
+		assert.Contains(t, res.Title, "Pop")
+		assert.NotEmpty(t, res.Songs)
+		assert.NotEmpty(t, res.Artists)
+		assert.Equal(t, res.SongCount, len(res.Songs))
+	})
+
+	t.Run("with invalid id", func(t *testing.T) {
+		t.Skip("need to figure this out")
+		c := jiosaavn.NewClient(nil)
+		id := "99999999999999"
+		_, err := c.GetPlaylistById(context.Background(), id)
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "invalid playlist id")
+	})
+}

@@ -70,19 +70,8 @@ func (c *Client) GetSongById(ctx context.Context, id string) (Song, error) {
 	params["pids"] = id
 	params[callEndpoint] = getSongById
 
-	req, err := makeRequest(ctx, params)
-	if err != nil {
-		return Song{}, err
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return Song{}, err
-	}
-	defer resp.Body.Close()
-
 	apiResponse := new(getSongAPIResponse)
-	err = json.NewDecoder(resp.Body).Decode(apiResponse)
+	err := c.makeRequestAndUnmarshal(ctx, params, apiResponse)
 	if err != nil {
 		return Song{}, err
 	}
@@ -107,19 +96,8 @@ func (c *Client) GetPlaylistById(ctx context.Context, id string) (PlaylistInfo, 
 	params["listid"] = id
 	params[callEndpoint] = getPlaylistById
 
-	req, err := makeRequest(ctx, params)
-	if err != nil {
-		return PlaylistInfo{}, err
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return PlaylistInfo{}, err
-	}
-	defer resp.Body.Close()
-
 	apiResponse := new(getPlaylistAPIResponse)
-	err = json.NewDecoder(resp.Body).Decode(apiResponse)
+	err = c.makeRequestAndUnmarshal(ctx, params, apiResponse)
 	if err != nil {
 		return PlaylistInfo{}, err
 	}
@@ -136,19 +114,8 @@ func (c *Client) searchSongs(ctx context.Context, q string, opts *searchOptions)
 	}
 	params[callEndpoint] = searchSongsEndpoint
 
-	req, err := makeRequest(ctx, params)
-	if err != nil {
-		return SearchSongsResults{}, err
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return SearchSongsResults{}, err
-	}
-	defer resp.Body.Close()
-
 	apiResp := new(searchSongsAPIResponse)
-	err = json.NewDecoder(resp.Body).Decode(apiResp)
+	err = c.makeRequestAndUnmarshal(ctx, params, apiResp)
 	if err != nil {
 		return SearchSongsResults{}, err
 	}
@@ -165,19 +132,8 @@ func (c *Client) searchArtists(ctx context.Context, q string, opts *searchOption
 	}
 	params[callEndpoint] = searchArtistsEndpoint
 
-	req, err := makeRequest(ctx, params)
-	if err != nil {
-		return SearchArtistsResults{}, err
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return SearchArtistsResults{}, err
-	}
-	defer resp.Body.Close()
-
 	apiResp := new(searchArtistsAPIResponse)
-	err = json.NewDecoder(resp.Body).Decode(apiResp)
+	err = c.makeRequestAndUnmarshal(ctx, params, apiResp)
 	if err != nil {
 		return SearchArtistsResults{}, err
 	}
@@ -193,19 +149,8 @@ func (c *Client) searchPlaylists(ctx context.Context, q string, opts *searchOpti
 	}
 	params[callEndpoint] = searchPlaylistsEndpoint
 
-	req, err := makeRequest(ctx, params)
-	if err != nil {
-		return SearchPlaylistsResults{}, err
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return SearchPlaylistsResults{}, err
-	}
-	defer resp.Body.Close()
-
 	apiResponse := new(searchPlaylistsAPIResponse)
-	err = json.NewDecoder(resp.Body).Decode(apiResponse)
+	err = c.makeRequestAndUnmarshal(ctx, params, apiResponse)
 	if err != nil {
 		return SearchPlaylistsResults{}, err
 	}
@@ -234,6 +179,21 @@ func makeRequest(ctx context.Context, params map[string]string) (*http.Request, 
 	req.Header.Set("Content-Type", "application/json")
 
 	return req, nil
+}
+
+func (c *Client) makeRequestAndUnmarshal(ctx context.Context, params map[string]string, v any) error {
+	req, err := makeRequest(ctx, params)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return json.NewDecoder(resp.Body).Decode(v)
 }
 
 func buildSearchParams(opts *searchOptions) (map[string]string, error) {

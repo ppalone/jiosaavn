@@ -29,7 +29,7 @@ func NewClient(c *http.Client) *Client {
 	return &Client{c}
 }
 
-// SearchSongs returns
+// SearchSongs
 func (c *Client) SearchSongs(ctx context.Context, q string, opts ...SearchOption) (SearchSongsResults, error) {
 	searchOpts := defaultSearchOpts()
 	for _, opt := range opts {

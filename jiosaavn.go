@@ -59,6 +59,16 @@ func (c *Client) SearchPlaylists(ctx context.Context, q string, opts ...SearchOp
 	return c.searchPlaylists(ctx, q, searchOpts)
 }
 
+// SearchAlbums
+func (c *Client) SearchAlbums(ctx context.Context, q string, opts ...SearchOption) (SearchAlbumsResults, error) {
+	searchOpts := defaultSearchOpts()
+	for _, opt := range opts {
+		opt(searchOpts)
+	}
+
+	return c.searchAlbums(ctx, q, searchOpts)
+}
+
 // GetSongById
 func (c *Client) GetSongById(ctx context.Context, id string) (Song, error) {
 	id = strings.TrimSpace(id)
@@ -153,6 +163,23 @@ func (c *Client) searchPlaylists(ctx context.Context, q string, opts *searchOpti
 	err = c.makeRequestAndUnmarshal(ctx, params, apiResponse)
 	if err != nil {
 		return SearchPlaylistsResults{}, err
+	}
+
+	return apiResponse.toResults(c, opts)
+}
+
+func (c *Client) searchAlbums(ctx context.Context, q string, opts *searchOptions) (SearchAlbumsResults, error) {
+	opts.query = strings.TrimSpace(q)
+	params, err := buildSearchParams(opts)
+	if err != nil {
+		return SearchAlbumsResults{}, err
+	}
+	params[callEndpoint] = searchAlbumsEndpoint
+
+	apiResponse := new(searchAlbumAPIResponse)
+	err = c.makeRequestAndUnmarshal(ctx, params, apiResponse)
+	if err != nil {
+		return SearchAlbumsResults{}, err
 	}
 
 	return apiResponse.toResults(c, opts)

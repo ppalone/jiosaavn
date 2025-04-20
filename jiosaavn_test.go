@@ -237,6 +237,58 @@ func TestSearchPlaylists(t *testing.T) {
 	})
 }
 
+func TestSearchAlbums(t *testing.T) {
+	t.Run("with no search options", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		res, err := c.SearchAlbums(context.Background(), "avicii")
+		assert.NoError(t, err)
+		assert.NotEmpty(t, res.Albums)
+		assert.Equal(t, 10, res.Size)
+		assert.Equal(t, 1, res.Page)
+	})
+
+	t.Run("with limit search option", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		limit := 35
+		res, err := c.SearchAlbums(context.Background(), "avicii", jiosaavn.WithLimit(limit))
+		assert.NoError(t, err)
+		assert.NotEmpty(t, res.Albums)
+		assert.Equal(t, 1, res.Page)
+		assert.Equal(t, limit, res.Size)
+	})
+
+	t.Run("with page search option", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		p := 2
+		res, err := c.SearchAlbums(context.Background(), "avicii", jiosaavn.WithPage(p))
+		assert.NoError(t, err)
+		assert.NotEmpty(t, res.Albums)
+		assert.Equal(t, p, res.Page)
+		assert.Equal(t, 10, res.Size)
+	})
+
+	t.Run("with next and page results", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		q := "avicii"
+		res, err := c.SearchAlbums(context.Background(), q)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, res.Albums)
+		assert.Equal(t, 1, res.Page)
+
+		resNext, err := res.Next(context.Background())
+		assert.NoError(t, err)
+		assert.NotEmpty(t, resNext.Albums)
+		assert.Equal(t, 2, resNext.Page)
+
+		resPage, err := c.SearchAlbums(context.Background(), q, jiosaavn.WithPage(2))
+		assert.NoError(t, err)
+		assert.NotEmpty(t, resPage.Albums)
+		assert.Equal(t, 2, resPage.Page)
+
+		assert.ElementsMatch(t, resNext.Albums, resPage.Albums)
+	})
+}
+
 func TestGetSongById(t *testing.T) {
 	t.Run("with empty id", func(t *testing.T) {
 		c := jiosaavn.NewClient(nil)

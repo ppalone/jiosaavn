@@ -19,16 +19,10 @@ type Playlist struct {
 
 // Playlist Info.
 type PlaylistInfo struct {
-	ID              string
-	Title           string
-	Image           string
-	PermanentURL    string
-	SongCount       int
-	PlayCount       int
-	Language        string
-	ExplicitContent bool
-	Songs           []Song
-	Artists         []Artist
+	Playlist
+	PlayCount int
+	Songs     []Song
+	Artists   []Artist
 }
 
 // Get Playlist API Response.
@@ -74,15 +68,19 @@ func (res *getPlaylistAPIResponse) toPlaylistInfo() (PlaylistInfo, error) {
 
 	songCount, _ := strconv.Atoi(res.ListCount)
 	playCount, _ := strconv.Atoi(res.PlayCount)
-	playlistInfo := PlaylistInfo{
+	playlist := Playlist{
 		ID:              res.ID,
 		Title:           html.UnescapeString(res.Title),
 		Image:           res.Image,
 		PermanentURL:    res.PermaURL,
 		SongCount:       songCount,
-		PlayCount:       playCount,
 		Language:        res.Language,
 		ExplicitContent: res.ExplicitContent == "1",
+	}
+
+	playlistInfo := PlaylistInfo{
+		PlayCount: playCount,
+		Playlist:  playlist,
 	}
 
 	songs := make([]Song, 0)

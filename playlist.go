@@ -33,20 +33,20 @@ type PlaylistInfo struct {
 
 // Get Playlist API Response.
 type getPlaylistAPIResponse struct {
-	ID              string            `json:"id"`
-	Title           string            `json:"title"`
-	Subtitle        string            `json:"subtitle"`
-	HeaderDesc      string            `json:"header_desc"`
-	Type            string            `json:"type"`
-	PermaURL        string            `json:"perma_url"`
-	Image           string            `json:"image"`
-	Language        string            `json:"language"`
-	Year            string            `json:"year"`
-	PlayCount       string            `json:"play_count"`
-	ExplicitContent string            `json:"explicit_content"`
-	ListCount       string            `json:"list_count"`
-	ListType        string            `json:"list_type"`
-	List            []songAPIResponse `json:"list"`
+	ID              string   `json:"id"`
+	Title           string   `json:"title"`
+	Subtitle        string   `json:"subtitle"`
+	HeaderDesc      string   `json:"header_desc"`
+	Type            string   `json:"type"`
+	PermaURL        string   `json:"perma_url"`
+	Image           string   `json:"image"`
+	Language        string   `json:"language"`
+	Year            string   `json:"year"`
+	PlayCount       string   `json:"play_count"`
+	ExplicitContent string   `json:"explicit_content"`
+	ListCount       string   `json:"list_count"`
+	ListType        string   `json:"list_type"`
+	List            songList `json:"list"`
 	MoreInfo        struct {
 		UID            string              `json:"uid"`
 		Contents       string              `json:"contents"`

@@ -1,6 +1,7 @@
 package jiosaavn
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -108,6 +109,24 @@ type songAPIResponse struct {
 // Get Song API Response.
 type getSongAPIResponse struct {
 	Songs []songAPIResponse `json:"songs"`
+}
+
+type songList []songAPIResponse
+
+func (s *songList) UnmarshalJSON(data []byte) error {
+	var t string
+	if err := json.Unmarshal(data, &t); err == nil {
+		*s = []songAPIResponse{}
+		return nil
+	}
+
+	var list []songAPIResponse
+	if err := json.Unmarshal(data, &list); err != nil {
+		return err
+	}
+	*s = list
+
+	return nil
 }
 
 func (res *songAPIResponse) toSong() Song {

@@ -11,4 +11,5 @@ const (
 	// get by id
 	getSongById     = "song.getDetails"
 	getPlaylistById = "playlist.getDetails"
+	getAlbumById    = "content.getAlbumDetails"
 )

@@ -115,6 +115,31 @@ func (c *Client) GetPlaylistById(ctx context.Context, id string) (PlaylistInfo, 
 	return apiResponse.toPlaylistInfo()
 }
 
+// GetAlbumById
+func (c *Client) GetAlbumById(ctx context.Context, id string) (AlbumInfo, error) {
+	id = strings.TrimSpace(id)
+	if len(id) == 0 {
+		return AlbumInfo{}, fmt.Errorf("album id cannot be empty")
+	}
+
+	_, err := strconv.Atoi(id)
+	if err != nil {
+		return AlbumInfo{}, fmt.Errorf("album id must be a number")
+	}
+
+	params := make(map[string]string)
+	params["albumid"] = id
+	params[callEndpoint] = getAlbumById
+
+	apiResponse := new(getAlbumAPIResponse)
+	err = c.makeRequestAndUnmarshal(ctx, params, apiResponse)
+	if err != nil {
+		return AlbumInfo{}, err
+	}
+
+	return apiResponse.toAlbumInfo()
+}
+
 func (c *Client) searchSongs(ctx context.Context, q string, opts *searchOptions) (SearchSongsResults, error) {
 	opts.query = strings.TrimSpace(q)
 

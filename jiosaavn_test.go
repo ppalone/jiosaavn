@@ -338,11 +338,35 @@ func TestGetPlaylistById(t *testing.T) {
 	})
 
 	t.Run("with invalid id", func(t *testing.T) {
-		t.Skip("need to figure this out")
 		c := jiosaavn.NewClient(nil)
 		id := "99999999999999"
 		_, err := c.GetPlaylistById(context.Background(), id)
 		assert.Error(t, err)
 		assert.ErrorContains(t, err, "invalid playlist id")
+	})
+}
+
+func TestGetAlbumById(t *testing.T) {
+	t.Run("with empty id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		_, err := c.GetAlbumById(context.Background(), "")
+		assert.ErrorContains(t, err, "album id cannot be empty")
+	})
+
+	t.Run("with valid id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		res, err := c.GetAlbumById(context.Background(), "27007462")
+		assert.NoError(t, err)
+		assert.Equal(t, "Live A Life You Will Remember", res.Title)
+		assert.Equal(t, 6, res.SongCount)
+		assert.NotEmpty(t, res.Songs)
+	})
+
+	t.Run("with invalid id", func(t *testing.T) {
+		c := jiosaavn.NewClient(nil)
+		id := "99999999999999"
+		_, err := c.GetAlbumById(context.Background(), id)
+		assert.Error(t, err)
+		assert.ErrorContains(t, err, "invalid album id")
 	})
 }
